@@ -14,6 +14,7 @@
 #include "pycore_unionobject.h"   // _PyUnion_Type
 #include "frameobject.h"
 #include "interpreteridobject.h"
+#include "recordobject.h"
 
 #ifdef Py_LIMITED_API
    // Prevent recursive call _Py_IncRef() <=> Py_INCREF()
@@ -1863,6 +1864,7 @@ _PyTypes_Init(void)
     INIT_TYPE(PyProperty_Type);
     INIT_TYPE(PyRangeIter_Type);
     INIT_TYPE(PyRange_Type);
+    INIT_TYPE(PyRecord_Type);
     INIT_TYPE(PyReversed_Type);
     INIT_TYPE(PySTEntry_Type);
     INIT_TYPE(PySeqIter_Type);
