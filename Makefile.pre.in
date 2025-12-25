@@ -434,6 +434,7 @@ OBJECT_OBJS=	\
 		Objects/obmalloc.o \
 		Objects/picklebufobject.o \
 		Objects/rangeobject.o \
+		Objects/recordobject.o \
 		Objects/setobject.o \
 		Objects/sliceobject.o \
 		Objects/structseq.o \
@@ -1091,6 +1092,7 @@ PYTHON_HEADERS= \
 		$(srcdir)/Include/pythonrun.h \
 		$(srcdir)/Include/pythread.h \
 		$(srcdir)/Include/rangeobject.h \
+		$(srcdir)/Include/recordobject.h \
 		$(srcdir)/Include/setobject.h \
 		$(srcdir)/Include/sliceobject.h \
 		$(srcdir)/Include/structmember.h \

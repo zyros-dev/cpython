@@ -2,6 +2,7 @@
 
 #include "Python.h"
 #include <ctype.h>
+#include "recordobject.h"         // PyRecord_Type
 #include "pycore_ast.h"           // _PyAST_Validate()
 #include "pycore_compile.h"       // _PyAST_Compile()
 #include "pycore_object.h"        // _Py_AddToAllObjects()
@@ -3036,6 +3037,7 @@ _PyBuiltin_Init(PyInterpreterState *interp)
     SETBUILTIN("str",                   &PyUnicode_Type);
     SETBUILTIN("super",                 &PySuper_Type);
     SETBUILTIN("tuple",                 &PyTuple_Type);
+    SETBUILTIN("Record",                &PyRecord_Type);
     SETBUILTIN("type",                  &PyType_Type);
     SETBUILTIN("zip",                   &PyZip_Type);
     debug = PyBool_FromLong(config->optimization_level == 0);

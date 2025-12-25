@@ -28,6 +28,7 @@
 #include "frameobject.h"
 #include "opcode.h"
 #include "pydtrace.h"
+#include "recordobject.h"
 #include "setobject.h"
 #include "structmember.h"         // struct PyMemberDef, T_OFFSET_EX
 
@@ -3369,6 +3370,64 @@ main_loop:
                 goto error;
             }
             Py_DECREF(update);
+            DISPATCH();
+        }
+
+        case TARGET(BUILD_RECORD): {
+            /* BUILD_RECORD oparg
+             * Stack: [name1, val1, name2, val2, ..., nameN, valN]
+             * Creates a Record with oparg fields.
+             * Pops 2*oparg items, pushes 1 Record.
+             */
+            Py_ssize_t i, n = oparg;
+            PyObject *names = PyTuple_New(n);
+            if (names == NULL)
+                goto error;
+
+            /* Allocate temporary array for values */
+            PyObject **values = PyMem_Malloc(n * sizeof(PyObject *));
+            if (values == NULL) {
+                Py_DECREF(names);
+                PyErr_NoMemory();
+                goto error;
+            }
+
+            /* Pop name/value pairs from stack in reverse order */
+            for (i = n - 1; i >= 0; i--) {
+                PyObject *val = POP();
+                PyObject *name = POP();
+
+                if (!PyUnicode_Check(name)) {
+                    Py_DECREF(name);
+                    Py_DECREF(val);
+                    /* Clean up already-collected items */
+                    for (Py_ssize_t j = i + 1; j < n; j++) {
+                        Py_DECREF(PyTuple_GET_ITEM(names, j));
+                        Py_DECREF(values[j]);
+                    }
+                    Py_DECREF(names);
+                    PyMem_Free(values);
+                    _PyErr_SetString(tstate, PyExc_TypeError,
+                                     "Record field names must be strings");
+                    goto error;
+                }
+
+                PyTuple_SET_ITEM(names, i, name);  /* Steals reference */
+                values[i] = val;                    /* We own this reference */
+            }
+
+            /* Create the Record object */
+            PyObject *record = PyRecord_New(names, values, n);
+            PyMem_Free(values);
+
+            if (record == NULL) {
+                /* PyRecord_New takes ownership of names on success,
+                 * but we need to clean up on failure */
+                Py_DECREF(names);
+                goto error;
+            }
+
+            PUSH(record);
             DISPATCH();
         }
 
